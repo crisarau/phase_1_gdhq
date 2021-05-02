@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 public class Player : MonoBehaviour
 {
 
@@ -29,7 +30,7 @@ public class Player : MonoBehaviour
     [SerializeField]
     private float _maxThruster;
     [SerializeField]
-    private float _currentThruster = 0.0f;
+    public float _currentThruster = 0.0f;
 
     private float _thrusterChargeSpeed = 0.5f;
     [SerializeField]
@@ -40,7 +41,8 @@ public class Player : MonoBehaviour
     [SerializeField]
     private Transform _thrusterVisual;
 
-
+    public event Action OnThrusterUpdate;
+    
     //[SerializeField]
     //private float _speed = 4.5f;
     //[SerializeField]
@@ -115,21 +117,24 @@ public class Player : MonoBehaviour
             if(_currentThruster == 0.0f){
                 _thrusterCooldown = false;
             }
+            OnThrusterUpdate?.Invoke();
         } else{
             //if we pressing go up...if we hit the limit. we enter cooldown and slow down by force
             if(Input.GetKey(KeyCode.LeftShift)){
-            _currentThruster += Time.deltaTime * _thrusterChargeSpeed;
-            _currentThruster = Mathf.Clamp(_currentThruster, 0.0f, _maxThruster);
+                _currentThruster += Time.deltaTime * _thrusterChargeSpeed;
+                _currentThruster = Mathf.Clamp(_currentThruster, 0.0f, _maxThruster);
                 if(_currentThruster == _maxThruster){
                     SetThrusterState(false);
                     Debug.Log("BURNED OUT!, Time to cool down");
                     _thrusterCooldown = true;
                 }
+                OnThrusterUpdate?.Invoke();
             }
             //if we aren't touching it...we just decrease naturally.
             if(_currentThruster > 0.0f && !Input.GetKey(KeyCode.LeftShift)){
                 _currentThruster -= Time.deltaTime * _thrusterChargeSpeed;
                 _currentThruster = Mathf.Clamp(_currentThruster, 0.0f, _maxThruster);
+                OnThrusterUpdate?.Invoke();
             }
             //if we let go return to normal speed
             if(Input.GetKeyUp(KeyCode.LeftShift)){
@@ -201,6 +206,10 @@ public class Player : MonoBehaviour
     //    }
     //    //sound effect
     //    _audioSource.Play();
+    }
+
+    public float getMaxThruster(){
+        return _maxThruster;
     }
 //
     //public void Damage(){

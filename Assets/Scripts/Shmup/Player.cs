@@ -2,6 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+
+public class Shot{
+    public bool critical;
+    public void Chance(int probability = 5){
+        float rnd = UnityEngine.Random.Range(0,101);
+        critical = rnd <= probability ? true : false;
+    }
+}
 public class Player : MonoBehaviour
 {
 
@@ -15,8 +23,6 @@ public class Player : MonoBehaviour
 
     private Weapon _currentWeapon;
     private float _currentFireRate;
-
-    private int _currentAmmo;
 
     private int _currentLife;
     private float _currentSpeed;
@@ -42,7 +48,17 @@ public class Player : MonoBehaviour
     private Transform _thrusterVisual;
 
     public event Action OnThrusterUpdate;
-    
+
+    [Header("Ammo Settings")]
+    [SerializeField]
+    private int _currentAmmo;
+    private int _shotQueueSize = 10; 
+    Queue<Shot> _shotQueue = new Queue<Shot>();
+
+    public event Action<int,int> OnFireAmmoUpdate;
+    public event Action<bool> OnShotEnqueue;
+    public event Action<bool> OnShotDequeue;
+
     //[SerializeField]
     //private float _speed = 4.5f;
     //[SerializeField]
@@ -88,6 +104,18 @@ public class Player : MonoBehaviour
         InitializeWeapon(0);
         _currentSpeed = _baseSpeed;
         _thrusterVisual.gameObject.SetActive(false);
+        _currentAmmo = _maxAmmo;
+
+        //populate queue
+        //for queue size. enqueue the initialized shot. furhter ones will be recycled.
+        for(int i = 0;i < _shotQueueSize;i++){
+            Shot temp = new Shot();
+            temp.Chance();
+            _shotQueue.Enqueue(temp);
+            OnShotEnqueue(temp.critical);   
+        }
+        Debug.Log(_shotQueue.Count);
+        OnFireAmmoUpdate(_currentAmmo, _maxAmmo);
 //
     //    _spawnManager = GameObject.Find("SpawnManager").GetComponent<SpawnManager>();
     //    if(_spawnManager== null){
@@ -151,7 +179,7 @@ public class Player : MonoBehaviour
         
 
         CalculateMovement();
-        if(Input.GetKey(KeyCode.Space) && Time.time > _nextFire){
+        if(Input.GetKey(KeyCode.Space) && Time.time > _nextFire && _currentAmmo != 0){
             ShootLaser();
         }
     }
@@ -194,7 +222,18 @@ public class Player : MonoBehaviour
     }
     void ShootLaser(){
         
-        _nextFire = _currentWeapon.Shoot(transform.position);
+        Shot temp = _shotQueue.Dequeue();
+        OnShotDequeue(temp.critical);
+        _nextFire = _currentWeapon.Shoot(transform.position, temp);
+        _currentAmmo -= 1;
+        OnFireAmmoUpdate(_currentAmmo,-1);
+        if(_currentAmmo >= _shotQueueSize){
+            temp.Chance();
+            _shotQueue.Enqueue(temp);
+            OnShotEnqueue(temp.critical);
+        }
+        Debug.Log(_shotQueue.Count);
+        
             
         //the next time it will allow to fire in the future.
         //_nextFire = Time.time + _fireRate;

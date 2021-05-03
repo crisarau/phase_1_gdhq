@@ -14,5 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   projectile: {fileID: 8669473310215176294, guid: 52bdf01c466a49942935ff6871c0d39d,
     type: 3}
+  criticalProjectile: {fileID: 5663766430808756362, guid: 67b5724fad5a247459d0655fadf61528,
+    type: 3}
   fireRate: 0.25
   baseAmmo: 15

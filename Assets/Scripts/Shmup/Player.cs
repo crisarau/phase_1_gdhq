@@ -247,6 +247,17 @@ public class Player : MonoBehaviour
     //    _audioSource.Play();
     }
 
+    public void AddAmmo(int ammount){
+        Debug.Log("AddAmmo called");
+        for(int i = _currentAmmo; i < _shotQueueSize; i++){
+            Shot temp = new Shot();
+            temp.Chance();
+            _shotQueue.Enqueue(temp);
+            OnShotEnqueue(temp.critical);
+        }
+        _currentAmmo = Mathf.Clamp(_currentAmmo + ammount, 0, _maxAmmo);
+        OnFireAmmoUpdate(_currentAmmo,-1);
+    }
     public float getMaxThruster(){
         return _maxThruster;
     }

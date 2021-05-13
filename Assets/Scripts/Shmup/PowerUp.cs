@@ -18,10 +18,10 @@ public class PowerUp : MonoBehaviour
                         break;
                     case 1:
                         //Debug.Log("COLLECTE SPEED");
-                        //player.SpeedPowerUpActive();
+                        player.Heal();
                         break;
                     case 2:
-                        //player.ShieldPowerUpActive();
+                        player.Damage();
                         break;
                     default:
                         break;

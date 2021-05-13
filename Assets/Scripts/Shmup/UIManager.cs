@@ -11,6 +11,8 @@ public class UIManager : MonoBehaviour
     [SerializeField]
     private TextMeshProUGUI _overheatText;
     [SerializeField]
+    private TextMeshProUGUI _dangerText;
+    [SerializeField]
     private TextMeshProUGUI _ammoMax;
     [SerializeField]
     private TextMeshProUGUI _currentAmmo;
@@ -19,9 +21,15 @@ public class UIManager : MonoBehaviour
     [SerializeField]
     private GameObject _ammoUIPrefab;
 
+    
+    [SerializeField]
+    private GameObject _healthBarUIPrefab;
+
     private IEnumerator _overHeatBlink;
+    private IEnumerator _dangerBlink;
 
     private Transform _ammoBar;
+    private Transform _lifeBar;
 
     // Start is called before the first frame update
     void Awake()
@@ -29,14 +37,25 @@ public class UIManager : MonoBehaviour
         _player = FindObjectOfType<Player>();
         _thrusterFill = transform.GetChild(0).GetChild(0).GetComponent<Image>();
         _ammoBar = transform.Find("AmmoBar");
+        _lifeBar = transform.Find("LifePanel").GetChild(0);
 
         _overHeatBlink = OverHeatBlinking();
+        _dangerBlink = DangerBlinking();
     }
     private void OnEnable() {
         _player.OnThrusterUpdate += ThrusterFill;
         _player.OnFireAmmoUpdate += AmmoUpdate;
         _player.OnShotEnqueue += AmmoEnqueueUpdate;
         _player.OnShotDequeue += AmmoDequeueUpdate;
+        _player.OnHealthUpdate += HealthUpdate;
+    }
+
+    private void OnDisable() {
+        _player.OnThrusterUpdate -= ThrusterFill;
+        _player.OnFireAmmoUpdate -= AmmoUpdate;
+        _player.OnShotEnqueue -= AmmoEnqueueUpdate;
+        _player.OnShotDequeue -= AmmoDequeueUpdate;
+        _player.OnHealthUpdate -= HealthUpdate;
     }
 
     void AmmoUpdate(int ammo, int max = -1){
@@ -44,6 +63,33 @@ public class UIManager : MonoBehaviour
         if(max>0){
             _ammoMax.text = "/ " + max.ToString("000");
         }
+    }
+
+    void HealthUpdate(int health){
+        //if took damage
+        if(health < _lifeBar.childCount+1){
+            if(health == 0){
+                StopCoroutine(_dangerBlink);
+                _dangerText.gameObject.SetActive(false);
+                return;
+            }
+            Destroy(_lifeBar.GetChild(_lifeBar.childCount-1).gameObject);
+            //if(_lifeBar.childCount == 0){
+            if(health == 1){
+                Debug.Log("no more children...starting corrotuine");
+                StartCoroutine(_dangerBlink);
+            }
+        }else{
+            //recovered health
+            if(_lifeBar.childCount == 0){
+                StopCoroutine(_dangerBlink);
+                _dangerText.gameObject.SetActive(false);
+            }
+            GameObject temp = Instantiate(_healthBarUIPrefab);
+            temp.transform.parent = _lifeBar;
+            //temp.transform.SetSiblingIndex(_lifeBar.childCount-1);
+        }
+    
     }
 
     void AmmoEnqueueUpdate(bool critical){
@@ -79,6 +125,7 @@ public class UIManager : MonoBehaviour
         if(_isThrusterCooldown && _thrusterFill.fillAmount == 1.0f){
             _isThrusterCooldown = false;
             StopCoroutine(_overHeatBlink);
+            _overheatText.gameObject.SetActive(false);
         }
     }
     IEnumerator OverHeatBlinking(){
@@ -86,6 +133,16 @@ public class UIManager : MonoBehaviour
             _overheatText.gameObject.SetActive(true);
             yield return new WaitForSeconds(0.25f);
             _overheatText.gameObject.SetActive(false);
+            yield return new WaitForSeconds(0.25f);
+
+        }
+    }
+
+    IEnumerator DangerBlinking(){
+        while(true){
+            _dangerText.gameObject.SetActive(true);
+            yield return new WaitForSeconds(0.25f);
+            _dangerText.gameObject.SetActive(false);
             yield return new WaitForSeconds(0.25f);
 
         }

@@ -18,13 +18,15 @@ public class Player : MonoBehaviour
 
     [SerializeField]
     private float _baseSpeed = 6.5f;
-    private int _baseLife = 3;
+    
     private int _maxAmmo;
 
     private Weapon _currentWeapon;
     private float _currentFireRate;
 
+    [SerializeField]
     private int _currentLife;
+    private int _baseLife = 3;
     private float _currentSpeed;
     private float _speedMultiplier = 2.0f;
 
@@ -32,6 +34,7 @@ public class Player : MonoBehaviour
     private float _sideEdges;
 
     [Header("Thruster Settings")]
+
     private float _nextFire = 0.0f;
     [SerializeField]
     private float _maxThruster;
@@ -58,14 +61,18 @@ public class Player : MonoBehaviour
     public event Action<int,int> OnFireAmmoUpdate;
     public event Action<bool> OnShotEnqueue;
     public event Action<bool> OnShotDequeue;
+    
+    public event Action<int> OnHealthUpdate;
 
     //[SerializeField]
     //private float _speed = 4.5f;
     //[SerializeField]
     //private GameObject _laserPrefab;
 //
-    //[SerializeField]
-    //private GameObject _shieldVisual, _rightEngine, _leftEngine;
+    [SerializeField]
+    private GameObject _shieldVisual;//, _rightEngine, _leftEngine;
+    float _shieldAlpha;
+
     //[SerializeField]
     //private GameObject _triplePrefab;
     //[SerializeField]
@@ -98,9 +105,10 @@ public class Player : MonoBehaviour
 //
     void Start()
     {
-    //    //current position at start.
-//
+        //current position at start.
         transform.position = new Vector3(0,0,0);
+
+        //get stats from first weapon
         InitializeWeapon(0);
         _currentSpeed = _baseSpeed;
         _thrusterVisual.gameObject.SetActive(false);
@@ -116,6 +124,16 @@ public class Player : MonoBehaviour
         }
         Debug.Log(_shotQueue.Count);
         OnFireAmmoUpdate(_currentAmmo, _maxAmmo);
+
+        //fill health
+        _currentLife = 1;
+        for(int i = 1 ; i<_baseLife;i++){
+            _currentLife += 1;
+            OnHealthUpdate(_currentLife);
+        }
+        //show shield. 111 = white = original sprite color
+        _shieldVisual.GetComponent<SpriteRenderer>().color = new Color(1,1,1,1);
+
 //
     //    _spawnManager = GameObject.Find("SpawnManager").GetComponent<SpawnManager>();
     //    if(_spawnManager== null){
@@ -248,7 +266,6 @@ public class Player : MonoBehaviour
     }
 
     public void AddAmmo(int ammount){
-        Debug.Log("AddAmmo called");
         for(int i = _currentAmmo; i < _shotQueueSize; i++){
             Shot temp = new Shot();
             temp.Chance();
@@ -262,8 +279,25 @@ public class Player : MonoBehaviour
         return _maxThruster;
     }
 //
-    //public void Damage(){
-//
+    public void Heal(){
+        if(_currentLife != _baseLife){
+            _currentLife = Mathf.Clamp(_currentLife + 1, 0, _baseLife);
+            OnHealthUpdate(_currentLife);
+
+            _shieldAlpha = ((float)_currentLife-1)/((float)_baseLife - 1);
+            _shieldVisual.GetComponent<SpriteRenderer>().color = new Color(1,1,1,_shieldAlpha);
+        }
+    }
+    public void Damage(){
+        _currentLife = Mathf.Clamp(_currentLife - 1, 0, _baseLife);
+        OnHealthUpdate(_currentLife);
+        if(_currentLife==0){
+            Death();
+            return;
+        }
+        
+        _shieldAlpha = ((float)_currentLife-1)/((float)_baseLife - 1);
+        _shieldVisual.GetComponent<SpriteRenderer>().color = new Color(1,1,1,_shieldAlpha);
     //    if(shieldActive){
     //        shieldActive = false;
     //        _shieldVisual.SetActive(false);
@@ -278,7 +312,7 @@ public class Player : MonoBehaviour
     //        _spawnManager.OnPlayerDeath();
     //        Death();
     //    }
-    //}
+    }
 //
     //private void UpdateDamageVisuals(int _damage){
     //    switch(_damage){
@@ -291,9 +325,9 @@ public class Player : MonoBehaviour
     //    }
     //}
 //
-    //private void Death(){
-    //    Destroy(this.gameObject);
-    //}
+    private void Death(){
+        Destroy(this.gameObject);
+    }
 //
     //public void TrippleShotActive(){
     //    tripleShotActive = true;

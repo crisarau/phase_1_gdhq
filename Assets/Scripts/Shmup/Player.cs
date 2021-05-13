@@ -58,6 +58,9 @@ public class Player : MonoBehaviour
     private int _shotQueueSize = 10; 
     Queue<Shot> _shotQueue = new Queue<Shot>();
 
+    [SerializeField]
+    private Transform _shotSpawns;
+
     public event Action<int,int> OnFireAmmoUpdate;
     public event Action<bool> OnShotEnqueue;
     public event Action<bool> OnShotDequeue;
@@ -91,6 +94,8 @@ public class Player : MonoBehaviour
     //private bool speedBoostActive = false;
     //[SerializeField]
     //private bool shieldActive = false;
+    [SerializeField]
+    private bool mirrorActive = false;
 //
     //private SpawnManager _spawnManager;
     //[SerializeField]
@@ -242,7 +247,24 @@ public class Player : MonoBehaviour
         
         Shot temp = _shotQueue.Dequeue();
         OnShotDequeue(temp.critical);
-        _nextFire = _currentWeapon.Shoot(transform.position, temp);
+
+        //basic shot
+        _nextFire = _currentWeapon.Shoot(_shotSpawns.GetChild(0).position,Quaternion.identity, temp);
+        if(mirrorActive){
+            Debug.Log("mirrorshot");
+            _currentWeapon.Shoot(_shotSpawns.GetChild(0).position,Quaternion.Euler(0,0,-180), temp);
+        }
+        //there should be a way to exclude the left and right ones from mirror...they are repeated twice on each side lol
+        for(int i = 1; i < _shotSpawns.childCount ;i++){
+            if(_shotSpawns.GetChild(i).gameObject.activeSelf){
+                _currentWeapon.Shoot(_shotSpawns.GetChild(i).position,_shotSpawns.GetChild(i).rotation,temp);
+                if(mirrorActive){
+                    _currentWeapon.Shoot(_shotSpawns.GetChild(i).position,Quaternion.Euler(0,0,_shotSpawns.GetChild(i).eulerAngles.z -180f), temp);
+                }
+            }
+        }
+        
+
         _currentAmmo -= 1;
         OnFireAmmoUpdate(_currentAmmo,-1);
         if(_currentAmmo >= _shotQueueSize){
@@ -325,6 +347,13 @@ public class Player : MonoBehaviour
     //    }
     //}
 //
+    public void ActivateShots(int shot1, int shot2 = 0){
+        _shotSpawns.GetChild(shot1).gameObject.SetActive(true);
+        _shotSpawns.GetChild(shot2).gameObject.SetActive(true);
+
+        StartCoroutine(extraShotPowerDownRoutine(shot1, shot2));
+
+    }
     private void Death(){
         Destroy(this.gameObject);
     }
@@ -333,11 +362,26 @@ public class Player : MonoBehaviour
     //    tripleShotActive = true;
     //    StartCoroutine(trippleShotPowerDownRoutine());
     //}
+
+    public void MirrorShotActive(){
+        mirrorActive = true;
+        StartCoroutine(mirrorShotPowerDownRoutine());
+    }
 //
     //IEnumerator trippleShotPowerDownRoutine(){
-    //    yield return new WaitForSeconds(5);
-    //    tripleShotActive = false; 
+        //yield return new WaitForSeconds(5);
+        //tripleShotActive = false; 
     //}
+    IEnumerator mirrorShotPowerDownRoutine(){
+        yield return new WaitForSeconds(5);
+        mirrorActive = false; 
+    }
+
+    IEnumerator extraShotPowerDownRoutine(int shot1, int shot2){
+        yield return new WaitForSeconds(5);
+        _shotSpawns.GetChild(shot1).gameObject.SetActive(false);
+        _shotSpawns.GetChild(shot2).gameObject.SetActive(false); 
+    }
 //
     //public void SpeedPowerUpActive(){
     //    _speed = _speed * _speedMultiplier;

@@ -23,6 +23,12 @@ public class PowerUp : MonoBehaviour
                     case 2:
                         player.Damage();
                         break;
+                    case 3:
+                        player.MirrorShotActive();
+                        break;
+                    case 4:
+                        player.ActivateShots(1,2);
+                        break;
                     default:
                         break;
                 }

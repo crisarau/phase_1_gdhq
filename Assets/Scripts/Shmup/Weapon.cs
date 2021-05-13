@@ -10,11 +10,11 @@ public class Weapon : ScriptableObject {
     public float fireRate = 0.25f;
 
     public int baseAmmo = 15;
-    public float Shoot(Vector3 pos, Shot criticalShot){
+    public float Shoot(Vector3 pos, Quaternion rot, Shot criticalShot){
         if(criticalShot.critical){
-            Instantiate(criticalProjectile, pos, Quaternion.identity);
+            Instantiate(criticalProjectile, pos, rot);
         }else{
-            Instantiate(projectile, pos, Quaternion.identity);
+            Instantiate(projectile, pos, rot);
         }
         return Time.time + fireRate;
     }

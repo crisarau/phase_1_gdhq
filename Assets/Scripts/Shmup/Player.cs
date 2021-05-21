@@ -82,6 +82,9 @@ public class Player : MonoBehaviour
     //private Transform _shootingPoint;
     //[SerializeField]
     //private float _fireRate = 0.25f;
+
+    
+
 //
     //[SerializeField]
     //private int _lives = 3;
@@ -96,6 +99,11 @@ public class Player : MonoBehaviour
     //private bool shieldActive = false;
     [SerializeField]
     private bool mirrorActive = false;
+    [SerializeField]
+    private int homingActive = 1;
+    HomingOverlapTarget homing;
+    [SerializeField] private float _currentSpecialRate;
+    private float _nextSpecial = 0.0f;
 //
     //private SpawnManager _spawnManager;
     //[SerializeField]
@@ -108,8 +116,12 @@ public class Player : MonoBehaviour
     //private AudioClip _laserSound;
     //private AudioSource _audioSource;
 //
+
+    
     void Start()
     {
+        homing = GetComponent<HomingOverlapTarget>();
+        homing.ResizeTargetAmount(homingActive);
         //current position at start.
         transform.position = new Vector3(0,0,0);
 
@@ -205,6 +217,11 @@ public class Player : MonoBehaviour
         if(Input.GetKey(KeyCode.Space) && Time.time > _nextFire && _currentAmmo != 0){
             ShootLaser();
         }
+
+        if(homingActive!=0 && Input.GetKey(KeyCode.H) && Time.time > _nextSpecial){
+
+            ShootHoming();
+        }
     }
 
     private void SetThrusterState(bool on){
@@ -287,6 +304,11 @@ public class Player : MonoBehaviour
     //    _audioSource.Play();
     }
 
+    public void ShootHoming(){
+        Debug.Log("we firing homing!");
+        homing.Fire();
+        _nextSpecial = Time.time + _currentSpecialRate;
+    }
     public void AddAmmo(int ammount){
         for(int i = _currentAmmo; i < _shotQueueSize; i++){
             Shot temp = new Shot();

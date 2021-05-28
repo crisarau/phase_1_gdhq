@@ -16,11 +16,17 @@ public class UIManager : MonoBehaviour
     private TextMeshProUGUI _ammoMax;
     [SerializeField]
     private TextMeshProUGUI _currentAmmo;
-    private bool _isThrusterCooldown = false;
+    
 
     [SerializeField]
     private GameObject _ammoUIPrefab;
 
+    private UIShaker ammoBarShaker;
+    private float maxThrusterFreq = 350;
+    private UIShaker thrusterShaker;
+    private bool _isThrusterCooldown = false;
+
+    private UIShaker deckShaker;
     
     [SerializeField]
     private GameObject _healthBarUIPrefab;
@@ -35,9 +41,13 @@ public class UIManager : MonoBehaviour
     void Awake()
     {
         _player = FindObjectOfType<Player>();
-        _thrusterFill = transform.GetChild(0).GetChild(0).GetComponent<Image>();
-        _ammoBar = transform.Find("AmmoBar");
-        _lifeBar = transform.Find("LifePanel").GetChild(0);
+        deckShaker = transform.Find("DeckHolder").GetComponent<UIShaker>();
+
+        _thrusterFill = transform.Find("DeckHolder").transform.Find("DECK_LEFT").transform.Find("BoostBar").GetChild(0).GetComponent<Image>();
+        thrusterShaker = transform.Find("DeckHolder").transform.Find("DECK_LEFT").transform.Find("BoostBar").GetChild(0).GetComponent<UIShaker>();
+        _ammoBar = transform.Find("DeckHolder").transform.Find("DECK_RIGHT").transform.Find("AmmoBarHolder").GetChild(0);
+        ammoBarShaker = _ammoBar.GetComponent<UIShaker>();
+        _lifeBar = transform.Find("DeckHolder").transform.Find("DECK_LEFT").transform.Find("LifePanel").GetChild(0);
 
         _overHeatBlink = OverHeatBlinking();
         _dangerBlink = DangerBlinking();
@@ -68,6 +78,9 @@ public class UIManager : MonoBehaviour
     void HealthUpdate(int health){
         //if took damage
         if(health < _lifeBar.childCount+1){
+
+            deckShaker.Shake(1f);
+
             if(health == 0){
                 StopCoroutine(_dangerBlink);
                 _dangerText.gameObject.SetActive(false);
@@ -110,22 +123,32 @@ public class UIManager : MonoBehaviour
         //Destroy(_ammoBar.GetChild(_ammoBar.childCount-1).gameObject);
         if(critical){
             //do some animation thingy. do that thing that keeps it alive until animation done
+            ammoBarShaker.Shake(1f);
         }
 
     }
-
-    void ThrusterFill(){
+    //up = true, down = false
+    void ThrusterFill(bool direction){
         _thrusterFill.fillAmount = 1.0f - (_player._currentThruster / _player.getMaxThruster());
+        thrusterShaker.ChangeFrequencies(maxThrusterFreq*(1f-_thrusterFill.fillAmount));
+        
         //if we hit 0...we are on cooldown mode...call on an IEnumerator
         if(_thrusterFill.fillAmount == 0.0f){
             _isThrusterCooldown = true;
             StartCoroutine(_overHeatBlink);   
         }
+
+        if (direction){
+            thrusterShaker.Shake(0.1f);
+        }
+            
+
         //when we reach back to 1... we out of cooldown mode...stop the IEnumerator
         if(_isThrusterCooldown && _thrusterFill.fillAmount == 1.0f){
             _isThrusterCooldown = false;
             StopCoroutine(_overHeatBlink);
             _overheatText.gameObject.SetActive(false);
+            thrusterShaker.ChangeFrequencies(0);
         }
     }
     IEnumerator OverHeatBlinking(){

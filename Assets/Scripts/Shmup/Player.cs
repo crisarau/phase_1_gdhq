@@ -50,7 +50,7 @@ public class Player : MonoBehaviour
     [SerializeField]
     private Transform _thrusterVisual;
 
-    public event Action OnThrusterUpdate;
+    public event Action<bool> OnThrusterUpdate;
 
     [Header("Ammo Settings")]
     [SerializeField]
@@ -180,7 +180,7 @@ public class Player : MonoBehaviour
             if(_currentThruster == 0.0f){
                 _thrusterCooldown = false;
             }
-            OnThrusterUpdate?.Invoke();
+            OnThrusterUpdate?.Invoke(false);
         } else{
             //if we pressing go up...if we hit the limit. we enter cooldown and slow down by force
             if(Input.GetKey(KeyCode.LeftShift)){
@@ -191,13 +191,13 @@ public class Player : MonoBehaviour
                     Debug.Log("BURNED OUT!, Time to cool down");
                     _thrusterCooldown = true;
                 }
-                OnThrusterUpdate?.Invoke();
+                OnThrusterUpdate?.Invoke(true);
             }
             //if we aren't touching it...we just decrease naturally.
             if(_currentThruster > 0.0f && !Input.GetKey(KeyCode.LeftShift)){
                 _currentThruster -= Time.deltaTime * _thrusterChargeSpeed;
                 _currentThruster = Mathf.Clamp(_currentThruster, 0.0f, _maxThruster);
-                OnThrusterUpdate?.Invoke();
+                OnThrusterUpdate?.Invoke(false);
             }
             //if we let go return to normal speed
             if(Input.GetKeyUp(KeyCode.LeftShift)){

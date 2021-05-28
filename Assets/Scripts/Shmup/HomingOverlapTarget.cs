@@ -21,6 +21,7 @@ public class HomingOverlapTarget : MonoBehaviour
     void Start()
     {
         targetsOverlap = new Collider2D[2];
+        fullScreen.enabled = false;
     }
 
     public void ResizeTargetAmount(int resize){
@@ -53,7 +54,8 @@ public class HomingOverlapTarget : MonoBehaviour
 
     public void Fire(){
         finalTargets.Clear();
-        Debug.Log("ClearingFinalTarget!"+ finalTargets.Count);
+        //Debug.Log("ClearingFinalTarget!"+ finalTargets.Count);
+        fullScreen.enabled = true;
         int numberOfHits = Physics2D.OverlapCollider(fullScreen,layerMask,targetsOverlap);
         if(numberOfHits != 0){
             Debug.Log("this many hits..."+ numberOfHits);
@@ -68,6 +70,7 @@ public class HomingOverlapTarget : MonoBehaviour
             }
             Array.Clear(targetsOverlap,0,2);
         }
+        fullScreen.enabled = false;
         if(finalTargets.Count != 0 && finalTargets.Count != targetsOverlap.Length){
             //we need to repeat.
             int i = finalTargets.Count;

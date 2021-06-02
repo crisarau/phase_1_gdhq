@@ -41,6 +41,9 @@ public class Enemy : MonoBehaviour
             Destroy(this.gameObject);
             
         }
-        
+        if(other.tag == "Melee"){
+            _speed = 0;
+            Destroy(this.gameObject);
+        }
     }
 }

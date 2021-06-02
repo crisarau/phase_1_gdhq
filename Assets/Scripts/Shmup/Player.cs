@@ -33,9 +33,17 @@ public class Player : MonoBehaviour
     [SerializeField]
     private float _sideEdges;
 
-    [Header("Thruster Settings")]
-
+    
     private float _nextFire = 0.0f;
+
+    [Header("I-Frame Settings")]
+    private BoxCollider2D collider;
+    private SpriteRenderer sprite;
+    [SerializeField]
+    private float _timePerBlink;
+
+
+    [Header("Thruster Settings")]
     [SerializeField]
     private float _maxThruster;
     [SerializeField]
@@ -49,6 +57,8 @@ public class Player : MonoBehaviour
     private float _thrusterMultiplier = 3.0f;
     [SerializeField]
     private Transform _thrusterVisual;
+    [SerializeField]
+    private GameObject ThrusterExplosion;
 
     public event Action<bool> OnThrusterUpdate;
 
@@ -67,11 +77,16 @@ public class Player : MonoBehaviour
     
     public event Action<int> OnHealthUpdate;
 
+    [Header("Melee Settings")]
+    [SerializeField]
+    private meleeAttack melee;
+
     //[SerializeField]
     //private float _speed = 4.5f;
     //[SerializeField]
     //private GameObject _laserPrefab;
 //
+    [Header("PowerUp Settings")]
     [SerializeField]
     private GameObject _shieldVisual;//, _rightEngine, _leftEngine;
     float _shieldAlpha;
@@ -121,6 +136,8 @@ public class Player : MonoBehaviour
     void Start()
     {
         homing = GetComponent<HomingOverlapTarget>();
+        collider = GetComponent<BoxCollider2D>();
+        sprite = GetComponent<SpriteRenderer>();
         homing.ResizeTargetAmount(homingActive);
         //current position at start.
         transform.position = new Vector3(0,0,0);
@@ -189,6 +206,7 @@ public class Player : MonoBehaviour
                 if(_currentThruster == _maxThruster){
                     SetThrusterState(false);
                     Debug.Log("BURNED OUT!, Time to cool down");
+                    Instantiate(ThrusterExplosion, new Vector3(transform.position.x, transform.position.y + ThrusterExplosion.transform.localPosition.y, transform.position.z) , Quaternion.identity);
                     _thrusterCooldown = true;
                 }
                 OnThrusterUpdate?.Invoke(true);
@@ -212,7 +230,9 @@ public class Player : MonoBehaviour
 
         }
         
-
+        if(Input.GetKeyDown(KeyCode.C)){
+            melee.Attack();
+        }
         CalculateMovement();
         if(Input.GetKey(KeyCode.Space) && Time.time > _nextFire && _currentAmmo != 0){
             ShootLaser();
@@ -333,6 +353,7 @@ public class Player : MonoBehaviour
         }
     }
     public void Damage(){
+        StartCoroutine(DamagedInvincibilityFrames());
         _currentLife = Mathf.Clamp(_currentLife - 1, 0, _baseLife);
         OnHealthUpdate(_currentLife);
         if(_currentLife==0){
@@ -428,4 +449,14 @@ public class Player : MonoBehaviour
     //    _uiManager.UpdateScore(_score);
     //}
 //
+    IEnumerator DamagedInvincibilityFrames(){
+        collider.enabled = false;
+        for(int i = 0; i < 10; i++){
+            sprite.color = Color.clear;
+            yield return new WaitForSeconds(_timePerBlink);
+            sprite.color = Color.white;
+            yield return new WaitForSeconds(_timePerBlink);
+        }
+        collider.enabled = true;
+    }
 }

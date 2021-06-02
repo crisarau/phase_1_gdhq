@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 5359700891026528805}
   - component: {fileID: 5359700891026528806}
   m_Layer: 5
-  m_Name: Image
+  m_Name: Image_AmmoBar_Horizontal
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

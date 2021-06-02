@@ -80,7 +80,7 @@ public class UIManager : MonoBehaviour
         if(health < _lifeBar.childCount+1){
 
             deckShaker.Shake(1f);
-
+            Camera.main.GetComponent<CameraShaker>().Shake(1f); //optimize this
             if(health == 0){
                 StopCoroutine(_dangerBlink);
                 _dangerText.gameObject.SetActive(false);

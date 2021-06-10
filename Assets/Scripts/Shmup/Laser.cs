@@ -2,15 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Laser : MonoBehaviour
+public class Laser : MonoBehaviour, IProjectile
 {
     [SerializeField]
     private float _speed = 8.0f;
     // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    [SerializeField]
+    private int _currentHealth;
+    
 
     // Update is called once per frame
     void Update()
@@ -22,6 +21,13 @@ public class Laser : MonoBehaviour
                 //if there is a parent...destroy the parent which also destroys the child automatically.
                 Destroy(transform.parent.gameObject);
             }
+            Destroy(this.gameObject);
+        }
+    }
+    
+    public void DegradeProjectile(int degradation){
+        _currentHealth -= 1;
+        if(_currentHealth <= 0 ){
             Destroy(this.gameObject);
         }
     }

@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 8927090159416997112}
   m_Layer: 0
   m_Name: ThrusterExplosion
-  m_TagString: Melee
+  m_TagString: PlayerAttack
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -122,6 +122,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e7edc87dad206948ac034c2bb6f27b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _timeStartup: 0.0833
   _timeActive: 0.25
   _timeToDestruction: 0.5
 --- !u!95 &8927090159416997112

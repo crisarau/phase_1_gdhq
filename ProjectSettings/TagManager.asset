@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Laser
   - Melee
+  - PlayerAttack
+  - EnemyAttack
   layers:
   - Default
   - TransparentFX

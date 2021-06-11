@@ -70,7 +70,7 @@ public class Enemy : MonoBehaviour
 
 
         //TESTING RAM ABILITY
-        enemyAbility = new EA_Ram(this, 3f, _speed, 15f, 5f, enemyTargetTEST);
+        enemyAbility = new EA_Ram(this, 3f, _speed, 15f, 5f, _player.transform,  enemyTargetTEST);
 
     }
     

@@ -731,6 +731,11 @@ PrefabInstance:
       propertyPath: enemyTargetTEST
       value: 
       objectReference: {fileID: 1534489620}
+    - target: {fileID: 7737654582048606794, guid: 79f9d74fe3c0c3d4784c498305b013bb,
+        type: 3}
+      propertyPath: abilityUsagePercentage
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8248567820515239408, guid: 79f9d74fe3c0c3d4784c498305b013bb,
         type: 3}
       propertyPath: m_RootOrder
@@ -3003,7 +3008,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1534489619}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1.98, y: 4.9, z: 0}
+  m_LocalPosition: {x: -0.58, y: -0.61, z: 0}
   m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_Children: []
   m_Father: {fileID: 0}

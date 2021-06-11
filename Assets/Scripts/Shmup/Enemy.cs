@@ -38,7 +38,10 @@ public class Enemy : MonoBehaviour
     [SerializeField]
     private IEnemyAbility enemyAbility;
     [SerializeField]
-    private bool abilityActive;
+    public bool abilityActive;
+
+    [SerializeField]
+    private float abilityUsagePercentage;
 
     [SerializeField]
     private Transform enemyTargetTEST;
@@ -56,14 +59,19 @@ public class Enemy : MonoBehaviour
         //using movement sequence and enemy ability...
         //TRYING THE PREMADE INPUT SEQUENCE VERSION
         //creating that sequence..WORKS
-        //movementInputs = new List<EnemyMovementInputs>();
-        //movementInputs.Add(new EnemyMovementInputs(0,-1,30));
+        movementInputs = new List<EnemyMovementInputs>();
+        movementInputs.Add(new EnemyMovementInputs(0,-1,1));
         //movementInputs.Add(new EnemyMovementInputs(1,-1,10));
-        //enemyMovementOption = new EM_InputSequence(this, true, movementInputs,_speed);
+        enemyMovementOption = new EM_InputSequence(this, true, movementInputs,_speed);
 
         //TRYING THE RANDOM POINT MOVE
         //FINDING NEXT POINT AWARE OF PLAYER POSITION.
-        enemyMovementOption = new EM_GoToPosition(this, enemyTargetTEST, true, _speed);
+        //enemyMovementOption = new EM_GoToPosition(this, enemyTargetTEST, true, _speed);
+
+
+        //TESTING RAM ABILITY
+        enemyAbility = new EA_Ram(this, 3f, _speed, 15f, 5f, enemyTargetTEST);
+
     }
     
     //sets runtime variables based on enemy type SO.
@@ -82,14 +90,26 @@ public class Enemy : MonoBehaviour
         //}
         
         //make its move based on current Enemy movement behavior
-        enemyMovementOption?.Move();
+        if(!abilityActive){
+            enemyMovementOption?.Move();
+        }
 
         //can shoot?
         if(Time.time > _nextFire){
             //then shoot
             Shoot(currentShotFrequencyMin, currentShotFrequencyMax);
         }
-        //can use ability?
+        //can use ability?// whether we can shoot or not is up to the ability!
+        if(!abilityActive && abilityUsagePercentage >= 1.0f){
+            abilityActive = true;
+            abilityUsagePercentage = 0.0f;
+            enemyAbility?.UseEnemyAbility();
+        }
+        if(abilityActive){
+            enemyAbility?.UseEnemyAbility();
+            //abilityUsagePercentage += (0.005f * Time.deltaTime);
+        }
+
 
     }
 

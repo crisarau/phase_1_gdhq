@@ -140,7 +140,7 @@ public class Player : MonoBehaviour
         sprite = GetComponent<SpriteRenderer>();
         homing.ResizeTargetAmount(homingActive);
         //current position at start.
-        transform.position = new Vector3(0,0,0);
+        //transform.position = new Vector3(0,0,0);
 
         //get stats from first weapon
         InitializeWeapon(0);

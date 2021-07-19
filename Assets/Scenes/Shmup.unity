@@ -722,20 +722,9 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 7737654582048606794, guid: 79f9d74fe3c0c3d4784c498305b013bb,
         type: 3}
-      propertyPath: _stats
-      value: 
-      objectReference: {fileID: 11400000, guid: 1e8675f747ad859499a1692a87fdf221,
-        type: 2}
-    - target: {fileID: 7737654582048606794, guid: 79f9d74fe3c0c3d4784c498305b013bb,
-        type: 3}
       propertyPath: enemyTargetTEST
       value: 
       objectReference: {fileID: 1534489620}
-    - target: {fileID: 7737654582048606794, guid: 79f9d74fe3c0c3d4784c498305b013bb,
-        type: 3}
-      propertyPath: abilityUsagePercentage
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 8248567820515239408, guid: 79f9d74fe3c0c3d4784c498305b013bb,
         type: 3}
       propertyPath: m_RootOrder
@@ -744,12 +733,12 @@ PrefabInstance:
     - target: {fileID: 8248567820515239408, guid: 79f9d74fe3c0c3d4784c498305b013bb,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 2.77
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8248567820515239408, guid: 79f9d74fe3c0c3d4784c498305b013bb,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 4.61
+      value: 3.95
       objectReference: {fileID: 0}
     - target: {fileID: 8248567820515239408, guid: 79f9d74fe3c0c3d4784c498305b013bb,
         type: 3}
@@ -2832,7 +2821,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1527326237}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: 0}
+  m_LocalPosition: {x: 0, y: -3.31, z: 0}
   m_LocalScale: {x: 0.25, y: 0.25, z: 1}
   m_Children:
   - {fileID: 2051515323}

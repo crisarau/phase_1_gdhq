@@ -23,7 +23,6 @@ public class Enemy : MonoBehaviour
     [SerializeField]
     ShootBehavior _shootBehavior;
     private float _nextFire;
-    private float _nextFrequencyFire;
 
     [SerializeField]
     private int consecutiveShotsLeft;
@@ -40,6 +39,14 @@ public class Enemy : MonoBehaviour
     [SerializeField]
     public bool abilityActive;
 
+    //difference is that this reacts!
+    private IEnemyEvasionManeuver evasiveManeuver;
+    public bool evasiveManeuverActive;
+    public bool evasiveColliderActive;
+    [SerializeField]
+    Collider2D evasiveCollider;
+
+
     [SerializeField]
     private float abilityUsagePercentage;
 
@@ -49,10 +56,13 @@ public class Enemy : MonoBehaviour
     Player _player;
     void Start()
     {
-        _player = GameObject.Find("Player").GetComponent<Player>();
-        InitializeEnemy();
+        //collider active...yes or no?
+        evasiveCollider = transform.GetChild(0).GetComponent<Collider2D>();
+        evasiveCollider.enabled = true;
 
-        
+        _player = GameObject.Find("Player").GetComponent<Player>();
+        //get stats
+        InitializeEnemy();
 
         _nextFire = Random.Range(currentShotFrequencyMin, currentShotFrequencyMax);
 
@@ -70,8 +80,10 @@ public class Enemy : MonoBehaviour
 
 
         //TESTING RAM ABILITY
-        enemyAbility = new EA_Ram(this, 3f, _speed, 15f, 5f, _player.transform,  enemyTargetTEST);
+        //enemyAbility = new EA_Ram(this, 3f, _speed, 15f, 5f, _player.transform,  enemyTargetTEST);
 
+        //evasiveOption
+        evasiveManeuver = new EA_Dodge(this, 10.5f, 0.25f);
     }
     
     //sets runtime variables based on enemy type SO.
@@ -110,11 +122,18 @@ public class Enemy : MonoBehaviour
             //abilityUsagePercentage += (0.005f * Time.deltaTime);
         }
 
+        if(evasiveManeuverActive){
+            evasiveManeuver.UseEnemyAbility();
+        }
 
     }
 
     private void OnTriggerEnter2D(Collider2D other) {
-        if(other.tag == "Player"){
+        if(other.tag == "Untagged"){
+            return;
+        }
+
+        if(other.tag == "Player" && this.name.Contains("Enemy") ){
             //damage player
             //nullchecking in case there is no component active.
             Player player = other.transform.GetComponent<Player>();
@@ -174,4 +193,13 @@ public class Enemy : MonoBehaviour
                 break;
         }
     }
+
+    public void ChangeEvasiveColliderStatus(bool colliderstatus){
+        evasiveCollider.enabled = colliderstatus;
+    }
+    public void ChangeEvasiveAbilityStatus(bool abilityStatus, Collider2D colinfo){
+        evasiveManeuverActive = abilityStatus;
+        ChangeEvasiveColliderStatus(false);
+        evasiveManeuver.SetCollisionInfo(colinfo);
+    }  
 }

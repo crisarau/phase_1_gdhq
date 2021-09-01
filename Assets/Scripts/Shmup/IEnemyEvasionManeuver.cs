@@ -4,5 +4,7 @@ using UnityEngine;
 public interface IEnemyEvasionManeuver : IEnemyAbility
 {
     void SetCollisionInfo(Collider2D info);
+
+    void ResetForReuse(EnemyController temporaryHost);
     
 }

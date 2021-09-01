@@ -13,7 +13,11 @@ public class WaveSO : ScriptableObject
     }
     public WaveBehavior StartBehavior;
     public WaveBehavior EndBehavior;
-    public float endDelay;
-    public float StartSpeedChange;
-    public float EndSpeedChange;
+    //how many of the randoms to spawn
+    public int randomSpawnTarget;
+
+    public float delayForRandomsAtStart;
+    //public float endDelay;
+    //public float StartSpeedChange;
+    //public float EndSpeedChange;
 }

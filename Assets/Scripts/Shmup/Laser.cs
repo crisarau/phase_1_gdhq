@@ -10,11 +10,26 @@ public class Laser : MonoBehaviour, IProjectile
     [SerializeField]
     private int _currentHealth;
     
+    [SerializeField]
+    private Vector2 moveDirection;
+
+    void Awake()
+    {
+        SetMoveDirection(Vector3.up);
+    }
+    public void SetMoveDirection(Vector2 dir){
+        moveDirection = dir;
+        //transform.rotation = Quaternion.LookRotation(dir);
+
+        //transform.rotation *= Quaternion.FromToRotation(transform.right, dir);
+
+
+    }
 
     // Update is called once per frame
     void Update()
     {
-        transform.Translate(Vector3.up *  _speed * Time.deltaTime);
+        transform.Translate(moveDirection *  _speed * Time.deltaTime);
 
         if(transform.position.y > 8.0f || transform.position.x > 8.0f || transform.position.y < -8.0f || transform.position.x < -8.0f){
             if(transform.parent != null){

@@ -12,8 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73c57800f5e7fb240bbecf6090e0a9af, type: 3}
   m_Name: Wave_02
   m_EditorClassIdentifier: 
+  orderedSpawns:
+  - {fileID: 11400000, guid: f6bf7010c49b5e34b8ab6a4084c7ec7d, type: 2}
+  - {fileID: 11400000, guid: de6a30b4ee5a2db4790c7a18cc232e5b, type: 2}
+  - {fileID: 11400000, guid: 3658720fbbc480945a8d5647955764b0, type: 2}
+  randomSpawns: []
   StartBehavior: 0
   EndBehavior: 0
-  endDelay: 0
-  StartSpeedChange: 0
-  EndSpeedChange: 0
+  randomSpawnTarget: 0

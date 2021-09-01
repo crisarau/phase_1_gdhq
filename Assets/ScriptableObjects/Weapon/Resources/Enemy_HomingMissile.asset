@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 530cb63557bcd9142a8534ea46322c56, type: 3}
-  m_Name: Single_EnemyWeapon
+  m_Name: Enemy_HomingMissile
   m_EditorClassIdentifier: 
-  projectile: {fileID: 2053590384376998470, guid: ce638db1b07d7ac49a41cc5e8b2ec9c9,
+  projectile: {fileID: 4124490734466497899, guid: ef6f220cbcae45445acf65331ee4db89,
     type: 3}
-  criticalProjectile: {fileID: 2053590384376998470, guid: ce638db1b07d7ac49a41cc5e8b2ec9c9,
+  criticalProjectile: {fileID: 4124490734466497899, guid: ef6f220cbcae45445acf65331ee4db89,
     type: 3}
-  fireRate: 0.25
+  fireRate: 1
   baseAmmo: 15

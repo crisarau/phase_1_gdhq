@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 530cb63557bcd9142a8534ea46322c56, type: 3}
-  m_Name: Pea
+  m_Name: Enemy_Pea
   m_EditorClassIdentifier: 
-  projectile: {fileID: 8669473310215176294, guid: 52bdf01c466a49942935ff6871c0d39d,
+  projectile: {fileID: 7662413175812722194, guid: 5cdf5909cd18afa49a0bcf8fefae16bb,
     type: 3}
-  criticalProjectile: {fileID: 5663766430808756362, guid: 67b5724fad5a247459d0655fadf61528,
+  criticalProjectile: {fileID: 7662413175812722194, guid: 5cdf5909cd18afa49a0bcf8fefae16bb,
     type: 3}
   fireRate: 0.25
   baseAmmo: 15

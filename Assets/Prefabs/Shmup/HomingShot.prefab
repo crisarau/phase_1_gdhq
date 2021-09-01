@@ -48,6 +48,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   target: {fileID: 0}
   speed: 5
+  _currentHealth: 1
+  lifetime: 8
   rotatespeed: 300
 --- !u!50 &7770506283720777161
 Rigidbody2D:

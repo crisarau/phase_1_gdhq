@@ -16,7 +16,7 @@ public class Enemy : MonoBehaviour
     [SerializeField]
     private Weapon _weapon;
 
-    enum ShootBehavior{
+    public enum ShootBehavior{
         RANDOM = 1, TIMESCONSECUTIVE = 2
     };
 
@@ -72,7 +72,7 @@ public class Enemy : MonoBehaviour
         movementInputs = new List<EnemyMovementInputs>();
         movementInputs.Add(new EnemyMovementInputs(0,-1,1));
         //movementInputs.Add(new EnemyMovementInputs(1,-1,10));
-        enemyMovementOption = new EM_InputSequence(this, true, movementInputs,_speed);
+        //enemyMovementOption = new EM_InputSequence(this, true, movementInputs,_speed);
 
         //TRYING THE RANDOM POINT MOVE
         //FINDING NEXT POINT AWARE OF PLAYER POSITION.
@@ -83,7 +83,7 @@ public class Enemy : MonoBehaviour
         //enemyAbility = new EA_Ram(this, 3f, _speed, 15f, 5f, _player.transform,  enemyTargetTEST);
 
         //evasiveOption
-        evasiveManeuver = new EA_Dodge(this, 10.5f, 0.25f);
+        //evasiveManeuver = new EA_Dodge(this, 10.5f, 0.25f);
     }
     
     //sets runtime variables based on enemy type SO.

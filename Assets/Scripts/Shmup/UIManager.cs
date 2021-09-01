@@ -106,7 +106,7 @@ public class UIManager : MonoBehaviour
     }
 
     void AmmoEnqueueUpdate(bool critical){
-        Debug.Log("Called!");
+        //Debug.Log("Called!");
         GameObject temp = Instantiate(_ammoUIPrefab);
         if(critical){
             temp.GetComponent<Image>().color = Color.red;

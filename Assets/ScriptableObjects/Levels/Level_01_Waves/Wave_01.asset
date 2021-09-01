@@ -13,10 +13,13 @@ MonoBehaviour:
   m_Name: Wave_01
   m_EditorClassIdentifier: 
   orderedSpawns:
-  - {fileID: 0}
-  randomSpawns: []
+  - {fileID: 11400000, guid: 3658720fbbc480945a8d5647955764b0, type: 2}
+  - {fileID: 11400000, guid: de6a30b4ee5a2db4790c7a18cc232e5b, type: 2}
+  - {fileID: 11400000, guid: f6bf7010c49b5e34b8ab6a4084c7ec7d, type: 2}
+  randomSpawns:
+  - {fileID: 11400000, guid: 36f88ecb6b5fc9744897eae980435e5d, type: 2}
+  - {fileID: 11400000, guid: 6001c3d78c888414cb46f51212df732e, type: 2}
   StartBehavior: 0
   EndBehavior: 0
-  endDelay: 0
-  StartSpeedChange: 0
-  EndSpeedChange: 0
+  randomSpawnTarget: 1
+  delayForRandomsAtStart: 1

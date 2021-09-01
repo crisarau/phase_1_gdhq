@@ -156,7 +156,7 @@ public class Player : MonoBehaviour
             _shotQueue.Enqueue(temp);
             OnShotEnqueue(temp.critical);   
         }
-        Debug.Log(_shotQueue.Count);
+        //Debug.Log(_shotQueue.Count);
         OnFireAmmoUpdate(_currentAmmo, _maxAmmo);
 
         //fill health
@@ -219,12 +219,12 @@ public class Player : MonoBehaviour
             }
             //if we let go return to normal speed
             if(Input.GetKeyUp(KeyCode.LeftShift)){
-                Debug.Log("let go, going down");
+                //Debug.Log("let go, going down");
                 SetThrusterState(false);
             }
             //if we first press, turn to higher speed.
             if(Input.GetKeyDown(KeyCode.LeftShift)){
-                Debug.Log("let go, going up");
+                //Debug.Log("let go, going up");
                 SetThrusterState(true);
             }
 

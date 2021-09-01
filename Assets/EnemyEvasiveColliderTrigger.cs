@@ -12,7 +12,8 @@ public class EnemyEvasiveColliderTrigger : MonoBehaviour
 
         //Debug.Log("COLLISION FROM THE EVASION HURTBOX");
         if(other.tag == "PlayerAttack"){
-            transform.parent.gameObject.GetComponent<Enemy>().ChangeEvasiveAbilityStatus(true, other);
+            Debug.Log("is evasive collider trigger called?");
+            transform.parent.gameObject.GetComponent<EnemyController>().ChangeEvasiveAbilityStatus(true, other);
         }
     }
 }

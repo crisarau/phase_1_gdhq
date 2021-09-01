@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class EA_Dodge :  IEnemyEvasionManeuver
 {
-    private Enemy currentEnemy;
+    private EnemyController currentEnemy;
     private Vector3 target;
 
     private Vector3 dirFromEnemyToBullet;
@@ -24,7 +24,7 @@ public class EA_Dodge :  IEnemyEvasionManeuver
     private Transform targetLock;
 
     private Collider2D currentCollisionInfo; //state depends on whether this is null or not...maybe we don't need this at all lol
-    public EA_Dodge(Enemy enemy, float speed, float distance){
+    public EA_Dodge(EnemyController enemy, float speed, float distance){
         currentEnemy = enemy;
         dodgeSpeed = speed;
         distanceToTravel = distance;
@@ -106,4 +106,13 @@ public class EA_Dodge :  IEnemyEvasionManeuver
     else lets it be over.
 
     */
+
+    public void ResetForReuse(EnemyController enemyReplacement){
+        currentEnemy = enemyReplacement;
+        haveTarget = false;
+    }
+
+    public void SetResourcesBasedOnType(EnemyAbilityResources resources){
+        return;
+    }
 }

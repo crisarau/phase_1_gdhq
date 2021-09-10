@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da3f2b6f45f10344f953ac4d86fce530, type: 3}
   m_Name: AbilityTest_01
   m_EditorClassIdentifier: 
-  delay: 0
+  delay: 3
   entity: {fileID: 425482863138134409, guid: b372cb6c836950f46964ef9af4ed4990, type: 3}
   creationPosition: {x: 0, y: 7, z: 0}
   driveBy: 0
@@ -34,8 +34,8 @@ MonoBehaviour:
   maxAbilityLaunchTimeCycle: 1000
   EvasiveManeuverType: -1
   colliderTimeAlive: 1
-  minEvasiveColliderActivateTime: 0
-  maxEvasiveColliderActivateTime: 0
+  minEvasiveColliderActivateTime: 1000
+  maxEvasiveColliderActivateTime: 1000
   MovementOptionType: 0
   rotationTowardsTarget: 0
   inputs:

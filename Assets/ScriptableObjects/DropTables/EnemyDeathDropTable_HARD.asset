@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd87b1f48ea8a6c429da521a682a3a41, type: 3}
+  m_Name: EnemyDeathDropTable_HARD
+  m_EditorClassIdentifier: 
+  drops:
+  - weight: 60
+    prefab: {fileID: 6763664789169099404, guid: 582116194688af04e9504ae2ddd43733,
+      type: 3}
+  - weight: 20
+    prefab: {fileID: 8217941150504578323, guid: 3c1f21158d4aefe4db5655b2ebc4ecc6,
+      type: 3}
+  - weight: 5
+    prefab: {fileID: 6406541878259198763, guid: 59cba1b1aabd35f40bdd2fd8e931168d,
+      type: 3}
+  - weight: 10
+    prefab: {fileID: 6406541878259198763, guid: 59cba1b1aabd35f40bdd2fd8e931168d,
+      type: 3}
+  - weight: 1
+    prefab: {fileID: 5767884261297403052, guid: bf069c2b83815424993398ba25538eb0,
+      type: 3}
+  - weight: 1
+    prefab: {fileID: 4339154203930972754, guid: 587d6990b72ac9a4784d356cf02f86f6,
+      type: 3}
+  - weight: 1
+    prefab: {fileID: 9174755852615929751, guid: 61a2510a9cc6fca4396d5b956a43dea4,
+      type: 3}
+  - weight: 1
+    prefab: {fileID: 3710518036662984401, guid: 59293ad26fe42084390cdff1923daaa0,
+      type: 3}
+  - weight: 1
+    prefab: {fileID: 4592952802810409861, guid: 06762f7ab3785ed41a0ea6ef7cbe3cbb,
+      type: 3}

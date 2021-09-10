@@ -51,4 +51,7 @@ public class WaveEntitySO : ScriptableObject
 
     [Header("AutoAim Settings")]
     public bool autoAim;
+
+    [Header("Drop Settings")]
+    public bool dropTableOption;
 }

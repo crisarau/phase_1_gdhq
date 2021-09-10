@@ -68,8 +68,10 @@ public class Player : MonoBehaviour
     private int _shotQueueSize = 10; 
     Queue<Shot> _shotQueue = new Queue<Shot>();
 
+    
+
     [SerializeField]
-    private Transform _shotSpawns;
+    public Transform _shotSpawns;
 
     public event Action<int,int> OnFireAmmoUpdate;
     public event Action<bool> OnShotEnqueue;
@@ -79,7 +81,15 @@ public class Player : MonoBehaviour
 
     [Header("Melee Settings")]
     [SerializeField]
-    private meleeAttack melee;
+    private meleeAttack[] meleeAttacks;
+    [SerializeField]
+    private int meleeAttackSelected;
+    [SerializeField]
+    private float _meleeAttackChargeSpeed = 0.5f;
+    [Range(0f, 1f)][SerializeField]
+    private float _currentMeleeBarFill = 0f;
+    public event Action<float> OnMeleeAttackUpdate;
+
 
     //[SerializeField]
     //private float _speed = 4.5f;
@@ -90,6 +100,8 @@ public class Player : MonoBehaviour
     [SerializeField]
     private GameObject _shieldVisual;//, _rightEngine, _leftEngine;
     float _shieldAlpha;
+    [SerializeField]
+    private int currentCriticalProbabilty = 5;
 
     //[SerializeField]
     //private GameObject _triplePrefab;
@@ -113,12 +125,33 @@ public class Player : MonoBehaviour
     //[SerializeField]
     //private bool shieldActive = false;
     [SerializeField]
-    private bool mirrorActive = false;
+    private int mirrorShotLevel = 0;
     [SerializeField]
-    private int homingActive = 1;
+    private int homingActive = 0;
+    [SerializeField]
+    private float _homingAttackChargeSpeed = 0.5f;
+    [Range(0f, 1f)][SerializeField]
+    private float _currentHomingBarFill = 0f;
     HomingOverlapTarget homing;
-    [SerializeField] private float _currentSpecialRate;
+    [SerializeField] private float _currentSpecialRate; // this and the next one aren't used anymore!
     private float _nextSpecial = 0.0f;
+
+    UpgradeController upgradeController;
+    private float upgradeDelay = 0.2f;
+    private float _nextUpgradeSwitch;
+
+    public event Action<bool> PickUpsMagnetActivation;
+    [Range(0f, 1f)][SerializeField]
+    private float _currentMagnetBarFill = 0f;
+    [SerializeField]
+    private float _magnetChargeSpeedUp = 0.25f; 
+    [SerializeField]
+    private float _magnetChargeSpeedDown = 0.25f; //separated this way for the upgrade. slower down and faster up
+    private bool magnetActive; //if u have the upgrade for it
+    private bool magnetValueGoingDown; //to keep going down as long as u press the button
+    
+
+
 //
     //private SpawnManager _spawnManager;
     //[SerializeField]
@@ -139,6 +172,8 @@ public class Player : MonoBehaviour
         collider = GetComponent<BoxCollider2D>();
         sprite = GetComponent<SpriteRenderer>();
         homing.ResizeTargetAmount(homingActive);
+        upgradeController = transform.GetComponent<UpgradeController>();
+        ChangeMeleeAttackLevel(-1);
         //current position at start.
         //transform.position = new Vector3(0,0,0);
 
@@ -152,7 +187,7 @@ public class Player : MonoBehaviour
         //for queue size. enqueue the initialized shot. furhter ones will be recycled.
         for(int i = 0;i < _shotQueueSize;i++){
             Shot temp = new Shot();
-            temp.Chance();
+            temp.Chance(currentCriticalProbabilty);
             _shotQueue.Enqueue(temp);
             OnShotEnqueue(temp.critical);   
         }
@@ -196,19 +231,23 @@ public class Player : MonoBehaviour
             _currentThruster = Mathf.Clamp(_currentThruster, 0.0f, _maxThruster);
             if(_currentThruster == 0.0f){
                 _thrusterCooldown = false;
+                //we reached end no more on cooldown
             }
-            OnThrusterUpdate?.Invoke(false);
+            OnThrusterUpdate?.Invoke(false); //let UI know
         } else{
             //if we pressing go up...if we hit the limit. we enter cooldown and slow down by force
             if(Input.GetKey(KeyCode.LeftShift)){
-                _currentThruster += Time.deltaTime * _thrusterChargeSpeed;
+                _currentThruster += Time.deltaTime * _thrusterChargeSpeed; //value go up
                 _currentThruster = Mathf.Clamp(_currentThruster, 0.0f, _maxThruster);
-                if(_currentThruster == _maxThruster){
-                    SetThrusterState(false);
+                if(_currentThruster == _maxThruster){ //we hit limit
+                    SetThrusterState(false); //shut down state, no way to turn it back on until we allowed to use again
                     Debug.Log("BURNED OUT!, Time to cool down");
+                    //instantiate thruster
                     Instantiate(ThrusterExplosion, new Vector3(transform.position.x, transform.position.y + ThrusterExplosion.transform.localPosition.y, transform.position.z) , Quaternion.identity);
+                    //enter cooldown state
                     _thrusterCooldown = true;
                 }
+                //always update UI
                 OnThrusterUpdate?.Invoke(true);
             }
             //if we aren't touching it...we just decrease naturally.
@@ -229,21 +268,70 @@ public class Player : MonoBehaviour
             }
 
         }
-        
-        if(Input.GetKeyDown(KeyCode.C)){
-            melee.Attack();
+
+        if(Input.GetKeyDown(KeyCode.C) && _currentMeleeBarFill == 1f){
+            meleeAttacks[meleeAttackSelected].Attack();
+            _currentMeleeBarFill = 0f;
+            OnMeleeAttackUpdate(_currentMeleeBarFill);
         }
+        if(_currentMeleeBarFill != 1f){
+            _currentMeleeBarFill += Time.deltaTime * _meleeAttackChargeSpeed;
+            _currentMeleeBarFill = Mathf.Clamp(_currentMeleeBarFill, 0f, 1f);
+            //let UI know
+            OnMeleeAttackUpdate(_currentMeleeBarFill);
+        }
+
         CalculateMovement();
         if(Input.GetKey(KeyCode.Space) && Time.time > _nextFire && _currentAmmo != 0){
             ShootLaser();
         }
 
-        if(homingActive!=0 && Input.GetKey(KeyCode.H) && Time.time > _nextSpecial){
-
+        if(homingActive!=0 && Input.GetKey(KeyCode.H) && _currentHomingBarFill == 1){
+            
             ShootHoming();
+            _currentHomingBarFill = 0f;
+            //letUIknow
+        }
+        if(_currentHomingBarFill != 1f){
+            _currentHomingBarFill += Time.deltaTime * _homingAttackChargeSpeed;
+            _currentHomingBarFill = Mathf.Clamp(_currentHomingBarFill, 0f, 1f);
+            //let UI know
+
+        }
+
+        if(Input.GetKey(KeyCode.M) && magnetActive && _currentMagnetBarFill == 1f){
+            magnetValueGoingDown = true;
+            PickUpsMagnetActivation?.Invoke(true);
+        }
+        if(magnetValueGoingDown){
+            _currentMagnetBarFill -= Time.deltaTime * _magnetChargeSpeedDown;
+            _currentMagnetBarFill = Mathf.Clamp(_currentMagnetBarFill, 0f, 1f);
+        }
+        if(_currentMagnetBarFill != 1f && !magnetValueGoingDown){
+            _currentMagnetBarFill += Time.deltaTime * _magnetChargeSpeedUp;
+            _currentMagnetBarFill = Mathf.Clamp(_currentMagnetBarFill, 0f, 1f);
+        }
+        if(Input.GetKeyUp(KeyCode.M)){
+            magnetValueGoingDown = false;
+            _currentMagnetBarFill = 0f;
+            PickUpsMagnetActivation?.Invoke(false);
+        }
+
+        //UI ABILITY SWITCHING
+        if(Input.GetKeyDown(KeyCode.Q) && Time.time > _nextUpgradeSwitch){
+            //THIS GETS THE CARD ON THE LEFT move to RIGHT for current position
+            // let upgrade controller handle this...
+            AddToSwitchUpgradeDelay();
+            upgradeController.ChangeCurrentLeft();
+        }
+        if(Input.GetKeyDown(KeyCode.E)&& Time.time > _nextUpgradeSwitch){
+            //THIS GETS THE CARD ON THE RIGHT move to the LEFT for current position
+            AddToSwitchUpgradeDelay();
+            upgradeController.ChangeCurrentRight();
         }
     }
 
+    //sets thruster speed multiplier or resets when done, also shows thruster visual
     private void SetThrusterState(bool on){
         if(on){
             _currentSpeed *= _thrusterMultiplier;
@@ -287,15 +375,16 @@ public class Player : MonoBehaviour
 
         //basic shot
         _nextFire = _currentWeapon.Shoot(_shotSpawns.GetChild(0).position,Quaternion.identity, temp);
-        if(mirrorActive){
-            Debug.Log("mirrorshot");
+        if(mirrorShotLevel != 0){
+            Debug.Log("diagonal mirrorshot");
             _currentWeapon.Shoot(_shotSpawns.GetChild(0).position,Quaternion.Euler(0,0,-180), temp);
         }
         //there should be a way to exclude the left and right ones from mirror...they are repeated twice on each side lol
         for(int i = 1; i < _shotSpawns.childCount ;i++){
             if(_shotSpawns.GetChild(i).gameObject.activeSelf){
                 _currentWeapon.Shoot(_shotSpawns.GetChild(i).position,_shotSpawns.GetChild(i).rotation,temp);
-                if(mirrorActive){
+                if(mirrorShotLevel > 1 && (i != 5 || i != 6)){
+                    //if mirrorshotlevel above one and not doing the left and right horizontal shots...then shoot
                     _currentWeapon.Shoot(_shotSpawns.GetChild(i).position,Quaternion.Euler(0,0,_shotSpawns.GetChild(i).eulerAngles.z -180f), temp);
                 }
             }
@@ -305,7 +394,7 @@ public class Player : MonoBehaviour
         _currentAmmo -= 1;
         OnFireAmmoUpdate(_currentAmmo,-1);
         if(_currentAmmo >= _shotQueueSize){
-            temp.Chance();
+            temp.Chance(currentCriticalProbabilty);
             _shotQueue.Enqueue(temp);
             OnShotEnqueue(temp.critical);
         }
@@ -332,7 +421,7 @@ public class Player : MonoBehaviour
     public void AddAmmo(int ammount){
         for(int i = _currentAmmo; i < _shotQueueSize; i++){
             Shot temp = new Shot();
-            temp.Chance();
+            temp.Chance(currentCriticalProbabilty);
             _shotQueue.Enqueue(temp);
             OnShotEnqueue(temp.critical);
         }
@@ -356,6 +445,7 @@ public class Player : MonoBehaviour
         StartCoroutine(DamagedInvincibilityFrames());
         _currentLife = Mathf.Clamp(_currentLife - 1, 0, _baseLife);
         OnHealthUpdate(_currentLife);
+        upgradeController.Downgrade();
         if(_currentLife==0){
             Death();
             return;
@@ -406,19 +496,24 @@ public class Player : MonoBehaviour
     //    StartCoroutine(trippleShotPowerDownRoutine());
     //}
 
-    public void MirrorShotActive(){
-        mirrorActive = true;
-        StartCoroutine(mirrorShotPowerDownRoutine());
-    }
+    //public void MirrorShotActive(){
+    //    mirrorActive = true;
+    //    StartCoroutine(mirrorShotPowerDownRoutine());
+    //}
+
+
+    //public void MirrorShotUpgradeActivation(bool state){
+    //    mirrorActive = state;
+    //}
 //
     //IEnumerator trippleShotPowerDownRoutine(){
         //yield return new WaitForSeconds(5);
         //tripleShotActive = false; 
     //}
-    IEnumerator mirrorShotPowerDownRoutine(){
-        yield return new WaitForSeconds(5);
-        mirrorActive = false; 
-    }
+    //IEnumerator mirrorShotPowerDownRoutine(){
+    //    yield return new WaitForSeconds(5);
+    //    mirrorActive = false; 
+    //}
 
     IEnumerator extraShotPowerDownRoutine(int shot1, int shot2){
         yield return new WaitForSeconds(5);
@@ -458,5 +553,91 @@ public class Player : MonoBehaviour
             yield return new WaitForSeconds(_timePerBlink);
         }
         collider.enabled = true;
+    }
+
+    public void AddToSwitchUpgradeDelay(){
+        _nextUpgradeSwitch = Time.time + upgradeDelay;
+    }
+
+    //since we are just setting...we can use this as a reset if pass 0 as argument
+    public void ChangeCurrentCriticalProbability(int level){
+        if(level == -1){
+            currentCriticalProbabilty = 5;
+        }else if(level == 0){
+            currentCriticalProbabilty = 10;
+        }else if(level == 1){
+            currentCriticalProbabilty = 15;
+        }else if(level == 2){
+            currentCriticalProbabilty = 20;
+        }
+    }
+    public void DeactivateAllMultiShots(){
+        for (int i = 1; i < 7; i++)
+        {
+            _shotSpawns.GetChild(i).gameObject.SetActive(false);   
+        }
+    }
+
+    public void ChangeCurrentMirrorShotLevel(int level){
+        if(level == -1){
+            mirrorShotLevel = 0;
+        }else if(level == 0){
+            mirrorShotLevel = 1;
+        }else if(level == 1){
+            mirrorShotLevel = 2;
+        }
+    }
+
+    public void ChangeHomingLevel(int level){
+        if(level == -1){
+            homingActive = 0;
+        }else if(level == 0){
+            homingActive = 1;
+            homing.ResizeTargetAmount(homingActive);
+        }else if(level == 1){
+            homingActive = 2;
+            homing.ResizeTargetAmount(homingActive);
+        }else if(level == 2){
+            homingActive = 3;
+            homing.ResizeTargetAmount(homingActive);
+        }
+    }
+
+    public void ChangeMeleeAttackLevel(int level){
+        if(level == -1){
+            meleeAttackSelected = 0;
+            meleeAttacks[0].transform.gameObject.SetActive(true);
+            meleeAttacks[1].transform.gameObject.SetActive(false);
+        }else if(level == 0){
+            meleeAttackSelected = 1;
+            meleeAttacks[1].transform.gameObject.SetActive(true);
+            meleeAttacks[0].transform.gameObject.SetActive(false);
+        }
+    }
+    public void ChangeMeleeChargeSpeed(bool state){
+        if(state){
+            _meleeAttackChargeSpeed = 0.35f;
+        }else{
+            _meleeAttackChargeSpeed = 0.15f;
+        }
+        
+    }
+    public void ChangeHomingChargeSpeed(bool state){
+        if(state){
+            _homingAttackChargeSpeed = 0.35f;
+        }else{
+            _homingAttackChargeSpeed = 0.15f;
+        }
+    }
+
+    
+
+    public void ChangeMagnetStatus(bool state){
+        if(state){
+            magnetActive = true;
+        }else{
+            magnetActive = false;
+        }
+
     }
 }

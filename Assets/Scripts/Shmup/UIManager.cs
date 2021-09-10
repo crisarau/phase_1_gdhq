@@ -37,6 +37,16 @@ public class UIManager : MonoBehaviour
     private Transform _ammoBar;
     private Transform _lifeBar;
 
+    //UpgradeDeckstuff
+    [SerializeField]
+    private GameObject _cardPrefab;
+    private UpgradeController _playerUpgrades;
+    private Transform UILiveUpgradesHolder;
+    private List<Transform> UIUpgradeConstantPositions;
+
+    private Image _meleeFill;
+
+
     // Start is called before the first frame update
     void Awake()
     {
@@ -45,12 +55,27 @@ public class UIManager : MonoBehaviour
 
         _thrusterFill = transform.Find("DeckHolder").transform.Find("DECK_LEFT").transform.Find("BoostBar").GetChild(0).GetComponent<Image>();
         thrusterShaker = transform.Find("DeckHolder").transform.Find("DECK_LEFT").transform.Find("BoostBar").GetChild(0).GetComponent<UIShaker>();
+
         _ammoBar = transform.Find("DeckHolder").transform.Find("DECK_RIGHT").transform.Find("AmmoBarHolder").GetChild(0);
         ammoBarShaker = _ammoBar.GetComponent<UIShaker>();
+
         _lifeBar = transform.Find("DeckHolder").transform.Find("DECK_LEFT").transform.Find("LifePanel").GetChild(0);
 
         _overHeatBlink = OverHeatBlinking();
         _dangerBlink = DangerBlinking();
+
+        //upgrade stuff
+        _playerUpgrades = FindObjectOfType<UpgradeController>();
+        UILiveUpgradesHolder = transform.Find("DeckHolder").Find("UPGRADE_PANEL").Find("UPGRADES_AT_PLAY");
+
+        UIUpgradeConstantPositions = new List<Transform>();
+        var tempcount = transform.Find("DeckHolder").Find("UPGRADE_PANEL").Find("STATIC_POSITIONS");
+        for(int i =0; i <  tempcount.childCount; i++){
+            UIUpgradeConstantPositions.Add(tempcount.GetChild(i));
+        }
+        //UIUpgradeConstantPositions = transform.Find("DeckHolder").Find("STATIC_POSITIONS");
+
+        _meleeFill = transform.Find("DeckHolder").transform.Find("DECK_LEFT").transform.Find("MeleeBar").GetChild(0).GetComponent<Image>();
     }
     private void OnEnable() {
         _player.OnThrusterUpdate += ThrusterFill;
@@ -58,6 +83,15 @@ public class UIManager : MonoBehaviour
         _player.OnShotEnqueue += AmmoEnqueueUpdate;
         _player.OnShotDequeue += AmmoDequeueUpdate;
         _player.OnHealthUpdate += HealthUpdate;
+        _player.OnMeleeAttackUpdate += MeleeAttackUpdate;
+
+        //upgrade stuff
+        _playerUpgrades.AddToCurrent += AddToActivePosition;
+        _playerUpgrades.RemoveCurrent += RemoveFromActivePosition;
+        _playerUpgrades.SelectLeft += SwipeLeft;
+        _playerUpgrades.SelectRight += SwipeRight;
+        _playerUpgrades.ReplaceCurrentCase += ReplaceCurrent;
+
     }
 
     private void OnDisable() {
@@ -66,6 +100,14 @@ public class UIManager : MonoBehaviour
         _player.OnShotEnqueue -= AmmoEnqueueUpdate;
         _player.OnShotDequeue -= AmmoDequeueUpdate;
         _player.OnHealthUpdate -= HealthUpdate;
+        _player.OnMeleeAttackUpdate -= MeleeAttackUpdate;
+
+        //upgrade stuff
+        _playerUpgrades.AddToCurrent -= AddToActivePosition;
+        _playerUpgrades.RemoveCurrent -= RemoveFromActivePosition;
+        _playerUpgrades.SelectLeft -= SwipeLeft;
+        _playerUpgrades.SelectRight -= SwipeRight;
+        _playerUpgrades.ReplaceCurrentCase -= ReplaceCurrent;
     }
 
     void AmmoUpdate(int ammo, int max = -1){
@@ -151,6 +193,11 @@ public class UIManager : MonoBehaviour
             thrusterShaker.ChangeFrequencies(0);
         }
     }
+
+
+    void MeleeAttackUpdate(float fill){
+        _meleeFill.fillAmount = fill;
+    }
     IEnumerator OverHeatBlinking(){
         while(true){
             _overheatText.gameObject.SetActive(true);
@@ -160,6 +207,7 @@ public class UIManager : MonoBehaviour
 
         }
     }
+
 
     IEnumerator DangerBlinking(){
         while(true){
@@ -171,4 +219,172 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    void AddToActivePosition(int count, BaseUpgrade upgrade){
+        switch (count)
+        {
+            case 1:
+                //var temp = ;
+                TemporaryColorPickerBasedOnTypeOfUpgrade(Instantiate(_cardPrefab,UIUpgradeConstantPositions[2].position, Quaternion.identity, UILiveUpgradesHolder), upgrade.type,false);       
+                break;
+            case 2:
+                //var temp = Instantiate(_cardPrefab,UIUpgradeConstantPositions[1].position, Quaternion.identity, UILiveUpgradesHolder);
+                TemporaryColorPickerBasedOnTypeOfUpgrade(Instantiate(_cardPrefab,UIUpgradeConstantPositions[1].position, Quaternion.identity, UILiveUpgradesHolder), upgrade.type,false);
+                
+                break;
+            case 3:
+                //var temp = Instantiate(_cardPrefab,UIUpgradeConstantPositions[1].position, Quaternion.identity, UILiveUpgradesHolder);
+                TemporaryColorPickerBasedOnTypeOfUpgrade(Instantiate(_cardPrefab,UIUpgradeConstantPositions[3].position, Quaternion.identity, UILiveUpgradesHolder), upgrade.type, true);
+                break;
+            default:
+                break;
+        }
+    }
+
+    GameObject TemporaryColorPickerBasedOnTypeOfUpgrade(GameObject toSet, int upgradeType, bool setFront){
+        switch (upgradeType)
+        {
+            case 0:
+                toSet.GetComponent<Image>().color = new Color32(252, 3, 3,255);
+                break;
+            case 1:
+                toSet.GetComponent<Image>().color = new Color32(0, 37, 219,255);
+                break;
+            case 2:
+                toSet.GetComponent<Image>().color = new Color32(127, 50, 168, 255);
+                break;
+            case 3:
+                toSet.GetComponent<Image>().color = new Color32(25, 192, 25, 255);
+                break;
+            case 4:
+                toSet.GetComponent<Image>().color = new Color32(7, 113, 130, 255);
+                break;
+            default:
+                toSet.GetComponent<Image>().color = new Color32(252, 233, 3,255);
+                break;
+        }
+        if(!setFront){
+            toSet.transform.SetAsFirstSibling();
+        }
+        return toSet;
+    }
+    void RemoveFromActivePosition(int count, BaseUpgrade upgrade){
+        //get current the hell out of there. or maybe we could use a curve for this? idk lol
+        Debug.Log("UI SAYS TO REMOVE");
+        if(count == 2){
+
+            var tempToRemove = UILiveUpgradesHolder.GetChild(1).gameObject;
+            LeanTween.move(tempToRemove,UIUpgradeConstantPositions[2].position + new Vector3(0,100,0), 0.08f).setOnComplete(() => DestroyUpgrade(tempToRemove)); //Should I cache this? idk if it will remain teh same
+        
+
+            //move back card to current
+            LeanTween.move(UILiveUpgradesHolder.GetChild(0).gameObject, UIUpgradeConstantPositions[2].position, 0.08f).setOnComplete(() => OnFinishingUpgradeMove(0,true));
+        }else if(count == 3){
+
+            var tempToRemove = UILiveUpgradesHolder.GetChild(1).gameObject;
+            LeanTween.move(tempToRemove,UIUpgradeConstantPositions[2].position + new Vector3(0,100,0), 0.08f).setOnComplete(() => DestroyUpgrade(tempToRemove)); //Should I cache this? idk if it will remain teh same
+        
+            //move front card to current position
+            LeanTween.move(UILiveUpgradesHolder.GetChild(2).gameObject, UIUpgradeConstantPositions[2].position, 0.08f).setOnComplete(() => OnFinishingUpgradeMove(2,false));
+        
+        }else if(count == 1){
+            var tempToRemove = UILiveUpgradesHolder.GetChild(0).gameObject;
+            LeanTween.move(tempToRemove,UIUpgradeConstantPositions[2].position + new Vector3(0,100,0), 0.08f).setOnComplete(() => DestroyUpgrade(tempToRemove)); //Should I cache this? idk if it will remain teh same
+        
+        }
+    }
+
+    void SwipeLeft(int count, BaseUpgrade upgrade){
+        //tbh we only move if we have 2 or 3 active...
+        if(count == 2){
+            LeanTween.move(UILiveUpgradesHolder.GetChild(1).gameObject, UIUpgradeConstantPositions[1].position, 0.08f).setOnComplete(() => OnFinishingUpgradeMove(1,false));
+
+            LeanTween.move(UILiveUpgradesHolder.GetChild(0).gameObject, UIUpgradeConstantPositions[0].position, 0.10f).setOnComplete(()=> OnUpgradeOutOfView(count,false));
+        }else if(count == 3){
+            
+            LeanTween.move(UILiveUpgradesHolder.GetChild(1).gameObject, UIUpgradeConstantPositions[1].position, 0.08f).setOnComplete(() => OnFinishingUpgradeMove(1,false));
+            LeanTween.move(UILiveUpgradesHolder.GetChild(2).gameObject, UIUpgradeConstantPositions[2].position, 0.08f).setOnComplete(() => OnFinishingUpgradeMove(2,false));
+
+            LeanTween.move(UILiveUpgradesHolder.GetChild(0).gameObject, UIUpgradeConstantPositions[0].position, 0.10f).setOnComplete(()=> OnUpgradeOutOfView(count,false));
+        }
+
+    }
+    void SwipeRight(int count, BaseUpgrade upgrade){
+        if(count == 2){
+            LeanTween.move(UILiveUpgradesHolder.GetChild(0).gameObject, UIUpgradeConstantPositions[2].position, 0.08f).setOnComplete(() => OnFinishingUpgradeMove(0,true));
+
+            LeanTween.move(UILiveUpgradesHolder.GetChild(1).gameObject, UIUpgradeConstantPositions[3].position, 0.10f).setOnComplete(()=> OnUpgradeOutOfView(count,true));
+        }else if(count == 3){
+            
+            LeanTween.move(UILiveUpgradesHolder.GetChild(1).gameObject, UIUpgradeConstantPositions[3].position, 0.08f).setOnComplete(() => OnFinishingUpgradeMove(1,true));
+            LeanTween.move(UILiveUpgradesHolder.GetChild(0).gameObject, UIUpgradeConstantPositions[2].position, 0.08f).setOnComplete(() => OnFinishingUpgradeMove(0,true));
+
+
+            LeanTween.move(UILiveUpgradesHolder.GetChild(2).gameObject, UIUpgradeConstantPositions[3].position - new Vector3(-1,-1,0), 0.10f).setOnComplete(()=> OnUpgradeOutOfView(count,true));
+        }
+    }
+
+    void OnUpgradeOutOfView(int currentCount, bool direction){
+        //direction, false left true right
+
+        
+        
+        if(direction){
+            //place out of view
+            UILiveUpgradesHolder.GetChild(0).position = Vector3.zero;
+            
+            if(currentCount == 2){
+                LeanTween.move(UILiveUpgradesHolder.GetChild(0).gameObject, UIUpgradeConstantPositions[1].position, 0.08f); //should i let someone know about this???
+            }else if(currentCount == 3){
+                LeanTween.move(UILiveUpgradesHolder.GetChild(0).gameObject, UIUpgradeConstantPositions[0].position, 0.08f); //should i let someone know about this???    
+            }
+        }else{
+            //place out of view
+            UILiveUpgradesHolder.GetChild(UILiveUpgradesHolder.childCount-1).position = Vector3.zero;
+            //then make it go to it's position.
+            if(currentCount == 2){
+                LeanTween.move(UILiveUpgradesHolder.GetChild(UILiveUpgradesHolder.childCount-1).gameObject, UIUpgradeConstantPositions[2].position, 0.08f); //should i let someone know about this???
+            }else if(currentCount == 3){
+                LeanTween.move(UILiveUpgradesHolder.GetChild(UILiveUpgradesHolder.childCount-1).gameObject, UIUpgradeConstantPositions[3].position, 0.08f); //should i let someone know about this???    
+            }
+        }
+        
+    }
+    void OnFinishingUpgradeMove(int currentIndex, bool direction){
+        //direction, false left true right
+
+        if(direction){
+            //change the order in child hierarchy
+            if(currentIndex==0){
+                UILiveUpgradesHolder.GetChild(currentIndex).SetSiblingIndex(1);
+
+            }else if(currentIndex==1){
+                UILiveUpgradesHolder.GetChild(currentIndex).SetSiblingIndex(2);
+            }
+        }else{
+            //change the order in child hierarchy
+            if(currentIndex==1){
+                UILiveUpgradesHolder.GetChild(currentIndex).SetSiblingIndex(0);
+
+            }else if(currentIndex==2){
+                UILiveUpgradesHolder.GetChild(currentIndex).SetSiblingIndex(1);
+            }
+        }
+    }
+    void DestroyUpgrade(GameObject card){
+        //gets called when we dismiss a card entirely.
+        Destroy(card);
+        Debug.Log("DESTROYED CARD");
+    }
+    void ReplaceCurrent(BaseUpgrade upgrade){
+        //current flies out
+        var tempToRemove = UILiveUpgradesHolder.GetChild(1).gameObject;
+        LeanTween.move(tempToRemove,UIUpgradeConstantPositions[1].position + new Vector3(0,100,0), 0.08f).setOnComplete(() => DestroyUpgrade(tempToRemove)); //Should I cache this? idk if it will remain teh same
+
+        //do something with the return...maybe animation idk
+        var tempToAdd = TemporaryColorPickerBasedOnTypeOfUpgrade(Instantiate(_cardPrefab,UIUpgradeConstantPositions[1].position, Quaternion.identity, UILiveUpgradesHolder), upgrade.type,false);
+        tempToAdd.transform.SetSiblingIndex(1);
+        LeanTween.move(tempToAdd,UIUpgradeConstantPositions[1].position, 0.08f); //Should I cache this? idk if it will remain teh same
+
+        
+    }
 }

@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   orderedSpawns:
   - {fileID: 11400000, guid: 09a37c6874a2b4842bba1d3f8ea1e4d0, type: 2}
+  - {fileID: 11400000, guid: 09a37c6874a2b4842bba1d3f8ea1e4d0, type: 2}
+  - {fileID: 11400000, guid: 09a37c6874a2b4842bba1d3f8ea1e4d0, type: 2}
   randomSpawns: []
   StartBehavior: 0
   EndBehavior: 0

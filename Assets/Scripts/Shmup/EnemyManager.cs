@@ -84,6 +84,8 @@ public class EnemyManager
         tempEC.SetManeuverBoundaries(data.colliderTimeAlive, data.minEvasiveColliderActivateTime);
         tempEC.SetStats(SetEnemyType(data.EnemyType));
 
+        tempEC.SetDropTableOption(data.dropTableOption);
+
         //what kind of projectile will it launch?...WeaponSO
         tempEC.SetWeapon(SetWeaponProjectileType(data.WeaponType));
 

@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd87b1f48ea8a6c429da521a682a3a41, type: 3}
+  m_Name: BasicTimerTable
+  m_EditorClassIdentifier: 
+  drops:
+  - weight: 70
+    prefab: {fileID: 6763664789169099404, guid: 582116194688af04e9504ae2ddd43733,
+      type: 3}
+  - weight: 20
+    prefab: {fileID: 8217941150504578323, guid: 3c1f21158d4aefe4db5655b2ebc4ecc6,
+      type: 3}
+  - weight: 2.5
+    prefab: {fileID: 6406541878259198763, guid: 59cba1b1aabd35f40bdd2fd8e931168d,
+      type: 3}
+  - weight: 5
+    prefab: {fileID: 1569725402012252956, guid: 6cf29d0216f271f49a3f8a7d080fd291,
+      type: 3}
+  - weight: 2.5
+    prefab: {fileID: 6406541878259198763, guid: 59cba1b1aabd35f40bdd2fd8e931168d,
+      type: 3}

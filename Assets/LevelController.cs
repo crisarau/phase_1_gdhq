@@ -111,7 +111,7 @@ public class LevelController : MonoBehaviour
             }
         }else{
             //once done with level do the logic to call for then end of level.
-            Debug.Log("Level Complete!");
+            //Debug.Log("Level Complete!");
         }
 
         

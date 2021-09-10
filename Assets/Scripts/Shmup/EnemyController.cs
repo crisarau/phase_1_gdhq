@@ -103,6 +103,9 @@ public class EnemyController : MonoBehaviour
     delegate void RetreatOption();
     RetreatOption retreatStrategy;
 
+    [SerializeField]
+    private bool dropTableSelect;
+
     //sets runtime variables based on enemy type SO.
     public void InitializeEnemy(){
         Debug.Log("initalize");
@@ -224,7 +227,7 @@ public class EnemyController : MonoBehaviour
             Damage(1);   
         }
 
-        if(other.tag == "PlayerAttack"){
+        if(other.tag == "PlayerAttack"){ //create a tag for sword??? it would help with the changes in damage
             //Debug.Log("bullet COLLISION");
             Damage(1);
             IProjectile proj = other.transform.GetComponent<IProjectile>();
@@ -278,6 +281,7 @@ public class EnemyController : MonoBehaviour
         //add to scoreboard
         LevelController.ChangeScoreBoard(placeInGameplayWave);
         //return to the manager
+
         ReturnToPool();
         //deactivate itself.
         //this.gameObject.SetActive(false);
@@ -292,6 +296,7 @@ public class EnemyController : MonoBehaviour
     }
 
     private void ReturnToPool(){
+        DropSpawner_EnemyDeath.GetBonus(dropTableSelect, transform.position);
         EnemyManager.ReturnEnemyToPool(placeInEnemyManager);
         
     }
@@ -412,6 +417,10 @@ public class EnemyController : MonoBehaviour
         shotControllerRotator.enabled = false;
         //reset rotation
         shotControllerRotator.transform.rotation = Quaternion.identity;
+    }
+
+    public void SetDropTableOption(bool tableSelected){
+        dropTableSelect = tableSelected;
     }
 
     //IEnumerator ManeuverColliderActivate(float seconds){
